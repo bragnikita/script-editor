@@ -1,0 +1,41 @@
+
+@mixin lined($span, $justify: flex-start) {
+  display: flex;
+  justify-content: $justify;
+  & > * {
+    margin-right: $span;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.lined-1 {
+  @include lined(0.2em);
+}
+.lined {
+  @extend .lined-1;
+}
+.lined-2 {
+  @include lined(0.5em);
+}
+.lined-3 {
+  @include lined(0.8em);
+}
+
+.flex-grow-0 {
+  flex-grow: 0;
+}
+.flex-grow-1 {
+  flex-grow: 1;
+}
+.w-100 {
+  width: 100%;
+}
+
+.block-wrapper {
+  margin-bottom: 0.8em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}

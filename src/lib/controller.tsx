@@ -64,14 +64,41 @@ export class BlockContainerController {
         return {};
     };
 
+    @action deleteBlock = (b: ScriptBlock) => {
+        if (this.list.length == 1) {
+            this.mutateBlock(b, "selector")
+        } else {
+            const index = this.list.indexOf(b);
+            if (index > -1) {
+                this.list.splice(index, 1);
+            }
+        }
+    };
+
+    @action up = (b: ScriptBlock) => {
+        const index = this.list.indexOf(b);
+        if (index > 0) {
+            this.list.splice(index, 1);
+            this.list.splice(index-1, 0, b)
+        }
+    };
+
+    @action down = (b: ScriptBlock) => {
+        const index = this.list.indexOf(b);
+        if (index < this.list.length - 1) {
+            this.list.splice(index, 1);
+            this.list.splice(index+1, 0, b)
+        }
+    };
+
+    isLast = (b: ScriptBlock) => { return this.list.indexOf(b) == this.list.length - 1};
+    isFirst = (b: ScriptBlock) => { return this.list.indexOf(b) == 0};
+
 
     private get nextId() {
         return _.random(0, 999999999999).toString(10)
     }
 }
-
-export const ControllerContext = createContext<ScriptContoller | undefined>(undefined)
-export const BlockContainerContext = createContext<BlockContainerController | undefined>(undefined)
 
 export class ScriptContoller {
     list: { name: string }[] = [

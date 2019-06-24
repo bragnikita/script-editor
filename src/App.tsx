@@ -1,8 +1,14 @@
 import React, {useState} from 'react';
 import './App.css';
 import styled from "styled-components";
-import {BlockContainerController, ControllerContext, ScriptContoller} from "./lib/controller";
+import {BlockContainerController, ScriptContoller} from "./lib/controller";
+import {ControllerContext} from "./lib/hooks"
 import {BlockContainer} from "./lib/block_container";
+import 'bulma'
+import '@fortawesome/fontawesome-free/js/fontawesome'
+import '@fortawesome/fontawesome-free/js/solid'
+import '@fortawesome/fontawesome-free/js/regular'
+import '@fortawesome/fontawesome-free/js/brands'
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -16,7 +22,7 @@ const Container = styled.div`
     justify-content: center;
     margin: 20px auto;
     border: 1px lightgray double;
-    width: auto;    
+    width: 100%;    
     padding: 10px;
     min-width: 300px;
 `;

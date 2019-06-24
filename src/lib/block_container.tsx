@@ -1,22 +1,11 @@
 import React, {useContext} from 'react';
-import styled from "styled-components";
 import SelectorField from "./selector";
 import {observer} from "mobx-react";
-import {BlockContainerController, ControllerContext, ScriptBlock, SerifData, BlockContainerContext} from "./controller";
+import {BlockContainerController, ScriptBlock, SerifData} from "./controller";
 import SerifBlock from "./serif";
-
-
-const BlockDiv = styled.div`
-width: 100%;
-    display: flex;
-    justify-content: flex-start;
-`;
-const ControlsDiv = styled.div`
-flex-grow: 0;
-`;
-const ComponentDiv = styled.div`
-flex-grow: 1;
-`;
+import {useContainer, useController, BlockContainerContext, ControllerContext} from "./hooks";
+import {IconButton} from "./components";
+import "../myscss.scss";
 
 const BlockRenderer = observer((props: {
     model: ScriptBlock,
@@ -40,25 +29,49 @@ const BlockRenderer = observer((props: {
         />
     }
     return <SelectorField create={
-        (type1, request) => { container.mutateBlock(props.model, type1, request) }
+        (type1, request) => {
+            container.mutateBlock(props.model, type1, request)
+        }
     }/>
 
 });
 
-const Block = (props: {
+const Block = ({model}: {
     model: ScriptBlock,
 }) => {
 
-    return <BlockDiv>
-        <ComponentDiv>
+    const container = useContainer();
+
+    return <div className="lined-3 w-100">
+        <div className="flex-grow-1">
             <BlockRenderer
-                model={props.model}
+                model={model}
             />
-        </ComponentDiv>
-        <ControlsDiv>
-            <button>Delete</button>
-        </ControlsDiv>
-    </BlockDiv>
+        </div>
+        <div className="lined flex-grow-0">
+            <IconButton
+                onClick={() => container.deleteBlock(model)}
+                command="delete"
+                iconSpec="fas fa-trash-alt"
+                className="is-white"
+                disabled={model.type === 'selector' && container.isFirst(model)}
+            />
+            <IconButton
+                onClick={() => container.up(model)}
+                command="up"
+                iconSpec="fas fa-arrow-up"
+                className="is-white"
+                disabled={container.isFirst(model)}
+            />
+            <IconButton
+                onClick={() => container.down(model)}
+                command="down"
+                iconSpec="fas fa-arrow-down"
+                className="is-white"
+                disabled={container.isLast(model)}
+            />
+        </div>
+    </div>
 };
 
 export const BlockContainer = observer((
@@ -68,27 +81,14 @@ export const BlockContainer = observer((
         block: BlockContainerController,
     }
 ) => {
-    return <div>
+    return <div className="w-100">
         <BlockContainerContext.Provider value={block}>
-        {block.list.map((s: ScriptBlock, index: number) => {
-            return <Block model={s} key={s.id}/>
-        })}
+            {block.list.map((s: ScriptBlock, index: number) => {
+                return <div key={s.id} className="block-wrapper">
+                    <Block model={s}/>
+                </div>
+            })}
         </BlockContainerContext.Provider>
     </div>
 
 });
-
-const useController = () => {
-    const controller = useContext(ControllerContext)
-    if (controller) {
-        return controller;
-    }
-    throw "Controller is not provided";
-};
-const useContainer = () => {
-    const container = useContext(BlockContainerContext)
-    if (container) {
-        return container;
-    }
-    throw "Controller is not provided";
-}
