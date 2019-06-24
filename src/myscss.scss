@@ -1,9 +1,13 @@
+html {
+  box-sizing: border-box;
+}
 
 @mixin lined($span, $justify: flex-start) {
   display: flex;
   justify-content: $justify;
   & > * {
     margin-right: $span;
+
     &:last-child {
       margin-right: 0;
     }
@@ -13,12 +17,15 @@
 .lined-1 {
   @include lined(0.2em);
 }
+
 .lined {
   @extend .lined-1;
 }
+
 .lined-2 {
   @include lined(0.5em);
 }
+
 .lined-3 {
   @include lined(0.8em);
 }
@@ -26,16 +33,74 @@
 .flex-grow-0 {
   flex-grow: 0;
 }
+
 .flex-grow-1 {
   flex-grow: 1;
 }
+
+.flex-vcenter {
+  display: flex;
+  align-items: center;
+}
+
 .w-100 {
   width: 100%;
 }
 
 .block-wrapper {
   margin-bottom: 0.8em;
+
   &:last-child {
     margin-bottom: 0;
+  }
+}
+
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.right-top {
+  top: 0;
+  right: 0;
+}
+
+.serif {
+  .selector, &.selector {
+    margin-right: 1em;
+    min-width: 170px;
+
+  }
+
+  .serif_selector__control {
+    border: none;
+  }
+  .serif_selector__value-container {
+    justify-content: flex-end;
+  }
+}
+
+.event {
+  .input {
+    border: none;
+    width: 100%;
+    font-size: 15px;
+    padding: 0.3em 0.5em;
+    color: black;
+    font-style: italic;
+    background-color: #d3d3d336;
+    color: #656565;
+  }
+}
+
+.block {
+  .buttons-container {
+    min-width: 115px;
+  }
+  &:hover {
+
   }
 }

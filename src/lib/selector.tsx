@@ -3,7 +3,8 @@ import styled from "styled-components";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
-import {ScriptBlock} from "./controller";
+import {BlockContainerController, ScriptBlock, ScriptContoller, SimpleTextData} from "./controller";
+import {EventBlock} from "./blocks";
 
 const Input = styled.input`
   border: none;
@@ -13,30 +14,45 @@ const Input = styled.input`
   color: dodgerblue;
 `;
 
+export const buildComponent = (block: ScriptBlock, container: BlockContainerController, script: ScriptContoller) => {
+    const type = block.type;
+    const hotkeys = { next: () => container.addBlock(undefined, block ) };
+    if (type === "serif") {
+        return <SerifBlock
+            key={block.id}
+            data={block.data}
+            fetchCandidates={script.fetchCharacters}
+            hotkey={hotkeys}
+        />
+    }
+    if (type === "event") {
+        return <EventBlock key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
+    }
+    return null;
+};
+
 const selectFieldComponent = (request: string) => {
 
     if (request.startsWith("--(")) {
 
-        return null;
+        return ["block", request.substr(3)];
     }
     if (request.startsWith("--!")) {
 
-        return null;
+        return ["image", request.substr(3)];
     }
     if (request.startsWith("--*")) {
 
-        return null;
+        return ["description", request.substr(3)];
     }
     if (request.startsWith("--")) {
 
-        return null;
+        return ["event", request.substr(2)];
     }
     if (request.length > 0) {
-
-
-        return "serif"
+        return ["serif", request]
     }
-    return null;
+    return [];
 };
 
 const SelectorField = observer((props: {
@@ -55,9 +71,9 @@ const SelectorField = observer((props: {
 
                     const request = field.$;
 
-                    const fieldComponent = selectFieldComponent(request);
+                    const [fieldComponent, r] = selectFieldComponent(request);
                     if (fieldComponent) {
-                        props.create(fieldComponent, request)
+                        props.create(fieldComponent, r)
                     }
                 }
             };
@@ -76,8 +92,10 @@ const SelectorField = observer((props: {
         }
     }, []);
 
-    return <Input type="text" onKeyDown={store.keyHandler} ref={ref}
+    return <div className="w-100 flex-vcenter">
+        <Input type="text" onKeyDown={store.keyHandler} ref={ref}
                   onChange={(e) => store.state.onChange(e.target.value)} value={store.state.value}/>
+    </div>
 });
 
 export default SelectorField;

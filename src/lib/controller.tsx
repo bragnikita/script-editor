@@ -1,6 +1,20 @@
 import _ from "lodash";
-import {action, observable} from "mobx";
-import {createContext} from "react";
+import {action, computed, observable} from "mobx";
+
+const serializeData = (data?: any) => {
+    if (!data) {
+        return null;
+    }
+    if (data.serialize) {
+        const res = data.serialize;
+        if (_.isFunction(res))
+            return res();
+        else {
+            return res;
+        }
+    }
+    return _.toPlainObject(data);
+};
 
 export class ScriptBlock {
     id: string;
@@ -9,15 +23,49 @@ export class ScriptBlock {
     @observable
     data?: any;
 
+    @observable
+    meta: BlockMeta;
+
     constructor(id: string, type: string) {
         this.id = id;
         this.type = type;
+        this.meta = new BlockMeta();
+    }
+
+    serialize = () => {
+        return {
+            id: this.id,
+            type: this.type,
+            data: serializeData(this.data)
+        }
     }
 }
 
+export class BlockMeta {
+    @observable
+    request?: string = "";
+    @observable
+    active = false;
+    @observable
+    hovered = false;
+}
+
 export class SerifData {
-    character_id?: string;
     character_name?: string;
+    text: string = "";
+    meta: {
+        request?: string
+    } = {};
+
+    serialize = () => {
+        return {
+            character_name: this.character_name,
+            text: this.text,
+        }
+    }
+}
+
+export class SimpleTextData {
     text: string = "";
     meta: {
         request?: string
@@ -45,7 +93,7 @@ export class BlockContainerController {
             this.list.push(block)
         } else {
             const index = this.list.indexOf(after);
-            this.list.splice(index+1, 0, block);
+            this.list.splice(index + 1, 0, block);
         }
     };
 
@@ -59,6 +107,11 @@ export class BlockContainerController {
         if (blockType === "serif") {
             const data = new SerifData();
             data.meta.request = request;
+            return data;
+        }
+        if (blockType === "event") {
+            const data = new SimpleTextData();
+            data.text = request || "";
             return data;
         }
         return {};
@@ -79,7 +132,7 @@ export class BlockContainerController {
         const index = this.list.indexOf(b);
         if (index > 0) {
             this.list.splice(index, 1);
-            this.list.splice(index-1, 0, b)
+            this.list.splice(index - 1, 0, b)
         }
     };
 
@@ -87,12 +140,20 @@ export class BlockContainerController {
         const index = this.list.indexOf(b);
         if (index < this.list.length - 1) {
             this.list.splice(index, 1);
-            this.list.splice(index+1, 0, b)
+            this.list.splice(index + 1, 0, b)
         }
     };
 
-    isLast = (b: ScriptBlock) => { return this.list.indexOf(b) == this.list.length - 1};
-    isFirst = (b: ScriptBlock) => { return this.list.indexOf(b) == 0};
+    isLast = (b: ScriptBlock) => {
+        return this.list.indexOf(b) == this.list.length - 1
+    };
+    isFirst = (b: ScriptBlock) => {
+        return this.list.indexOf(b) == 0
+    };
+
+    get serialize() {
+        return this.list.map((b) => b.serialize())
+    };
 
 
     private get nextId() {
@@ -102,9 +163,9 @@ export class BlockContainerController {
 
 export class ScriptContoller {
     list: { name: string }[] = [
-        { name: "Felicia"},
-        { name: "Yachio"},
-        { name: "Iroha"},
+        {name: "Felicia"},
+        {name: "Yachio"},
+        {name: "Iroha"},
     ];
 
     fetchCharacters = (request?: string) => {
@@ -121,7 +182,7 @@ export class ScriptContoller {
 
         });
         if (filtred.length == 0) {
-            const candidate = { name: request }
+            const candidate = {name: request}
             this.list.push(candidate);
             return [candidate];
         } else {

@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/js/fontawesome'
 import '@fortawesome/fontawesome-free/js/solid'
 import '@fortawesome/fontawesome-free/js/regular'
 import '@fortawesome/fontawesome-free/js/brands'
+import {DataDisplayer} from "./lib/components";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -44,6 +45,7 @@ const App: React.FC = () => {
                     <BlockContainer block={block}/>
                 </ControllerContext.Provider>
             </Container>
+            <DataDisplayer block={block}/>
         </CenterCol>
     );
 }

@@ -1,19 +1,22 @@
-import React, {useCallback, useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Textarea from 'react-textarea-autosize';
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import Select from 'react-select';
 import styled from "styled-components";
 import {HotkeyHandle, SerifData} from "./controller";
+import {observable, runInAction} from "mobx";
+import {useAutoCatchFocus, useTextHotkeys} from "./hooks";
 
 const Component = styled.div`
 display: flex;
 justify-content: flex-start;
 align-items: flex-start;
 width: 100%;
+align-items: center;
 `;
 
-const StyledSelect = styled(Select).attrs({ className: "se--serif-selector"})`
+const StyledSelect = styled(Select).attrs({className: "se--serif-selector"})`
   margin-right: 1em;
   min-width: 170px;
 `;
@@ -36,11 +39,21 @@ interface Props {
     fetchCandidates: (request?: string) => SelectorCandidate[]
 }
 
+class Store {
 
-const SerifBlock = observer((props: Props) => {
+    @observable
+    text = "";
+    @observable
+    selected = "";
 
-    const data = useLocalStore(() => {
+    model: SerifData;
 
+    @observable
+    allCandidates: SelectorCandidate[];
+
+    constructor(props: Props) {
+        this.model = props.data;
+        this.text = props.data.text;
         let selectedCandidate;
         let candidates;
         if (props.data.meta.request) {
@@ -49,56 +62,66 @@ const SerifBlock = observer((props: Props) => {
                 selectedCandidate = candidates[0];
             }
         }
-        const allCandidates = props.fetchCandidates();
+        this.allCandidates = props.fetchCandidates();
         let selectedValue = props.data.character_name;
         if (!selectedValue && selectedCandidate) {
             selectedValue = selectedCandidate.name;
         }
-        if (!selectedValue && allCandidates.length > 0) {
-            selectedValue = allCandidates[0].name;
+        if (!selectedValue && this.allCandidates.length > 0) {
+            selectedValue = this.allCandidates[0].name;
         }
 
-        return {
-            selectedCandidate: selectedCandidate,
-            allCandidates: allCandidates,
+        this.selected = selectedValue || "";
+        this.model.character_name = this.selected;
+    }
 
-            selectorField: new FieldState<string>(selectedValue || ""),
-            textField: new FieldState<string>(props.data.text),
-        }
-    });
+    onEditText = (text: string) => {
+        this.text = text;
+        this.model.text = text;
+    };
+    onSelectorField = (text: string) => {
+        this.selected = text;
+        this.model.character_name = text;
+    }
+}
+
+
+const SerifBlock = observer((props: Props) => {
+
+    const [data] = useState(() => new Store(props));
 
     const keyPressed = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         console.log(e.key, e.shiftKey, e.keyCode);
         if (e.shiftKey && e.key === 'Enter') {
-            console.log('ShiftEnter', props.hotkey)
+            console.log('ShiftEnter', props.hotkey);
             if (props.hotkey) {
                 props.hotkey.next();
                 e.preventDefault();
             }
         }
-    },[props.hotkey]);
+    }, [props.hotkey]);
+    const hotkeys = useTextHotkeys<HTMLTextAreaElement>(props.hotkey);
 
-    const ref = useRef<HTMLTextAreaElement>(null);
-    useEffect(() => {
-        if (ref && ref.current) {
-            ref.current.focus();
-        }
-    }, []);
+    const ref = useAutoCatchFocus<HTMLTextAreaElement>();
 
     const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item.name, label: item.name}));
-    const value = opts.find((o) => o.value === data.selectorField.value);
+    const value = opts.find((o) => o.value === data.selected);
     return (
         <Component>
-            <StyledSelect
+            <Select
                 options={opts}
                 onChange={(v: any) => {
-                    data.selectorField.onChange(v.value)
+                    data.onSelectorField(v.value)
                 }}
                 value={value}
+                className={"serif selector"}
+                classNamePrefix={"serif_selector"}
+                components={{IndicatorSeparator: null, DropdownIndicator: null}}
             />
-            <StyledTextArea inputRef={ref} value={data.textField.value}
-                            onChange={(e) => data.textField.onChange(e.target.value)}
-                            onKeyPress={keyPressed}
+            <StyledTextArea
+                inputRef={ref} value={data.text}
+                onChange={(e) => data.onEditText(e.target.value)}
+                {...hotkeys}
             />
         </Component>
     );
