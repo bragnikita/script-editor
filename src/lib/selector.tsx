@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
+import {ScriptBlock} from "./controller";
 
 const Input = styled.input`
   border: none;
@@ -33,18 +34,15 @@ const selectFieldComponent = (request: string) => {
     if (request.length > 0) {
 
 
-        return <SerifBlock fetchCandidates={(request?: string) => {
-            console.log(request);
-            return []
-        }} nameRequest={request} data={{text: ""}}
-        />
+        return "serif"
     }
     return null;
 };
 
-const SelectorField = observer((props: {}) => {
-
-    const [realField, setRealField] = useState<ReactElement>();
+const SelectorField = observer((props: {
+                                    create(type: string, request: string): void
+                                }
+) => {
 
     const store = useLocalStore(() => {
 
@@ -59,12 +57,12 @@ const SelectorField = observer((props: {}) => {
 
                     const fieldComponent = selectFieldComponent(request);
                     if (fieldComponent) {
-                        setRealField(fieldComponent);
+                        props.create(fieldComponent, request)
                     }
                 }
             };
 
-        return {
+            return {
                 keyHandler: onKeyPressedHandler,
                 state: field
             };
@@ -78,9 +76,6 @@ const SelectorField = observer((props: {}) => {
         }
     }, []);
 
-    if (realField) {
-        return realField;
-    }
     return <Input type="text" onKeyDown={store.keyHandler} ref={ref}
                   onChange={(e) => store.state.onChange(e.target.value)} value={store.state.value}/>
 });

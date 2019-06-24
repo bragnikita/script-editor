@@ -1,9 +1,10 @@
-import React, {useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useRef} from "react";
 import Textarea from 'react-textarea-autosize';
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import Select from 'react-select';
 import styled from "styled-components";
+import {HotkeyHandle, SerifData} from "./controller";
 
 const Component = styled.div`
 display: flex;
@@ -26,20 +27,13 @@ const StyledTextArea = styled(Textarea)`
 `;
 
 type SelectorCandidate = {
-    id: string,
     name: string,
 }
 
 interface Props {
     data: SerifData,
-    nameRequest?: string,
+    hotkey?: HotkeyHandle,
     fetchCandidates: (request?: string) => SelectorCandidate[]
-}
-
-class SerifData {
-    character_id?: string;
-    character_name?: string;
-    text: string = "";
 }
 
 
@@ -49,19 +43,19 @@ const SerifBlock = observer((props: Props) => {
 
         let selectedCandidate;
         let candidates;
-        if (props.nameRequest) {
-            candidates = props.fetchCandidates(props.nameRequest);
+        if (props.data.meta.request) {
+            candidates = props.fetchCandidates(props.data.meta.request);
             if (candidates.length == 1) {
                 selectedCandidate = candidates[0];
             }
         }
         const allCandidates = props.fetchCandidates();
-        let selectedValue = props.data.character_id;
+        let selectedValue = props.data.character_name;
         if (!selectedValue && selectedCandidate) {
-            selectedValue = selectedCandidate.id;
+            selectedValue = selectedCandidate.name;
         }
         if (!selectedValue && allCandidates.length > 0) {
-            selectedValue = allCandidates[0].id;
+            selectedValue = allCandidates[0].name;
         }
 
         return {
@@ -73,6 +67,17 @@ const SerifBlock = observer((props: Props) => {
         }
     });
 
+    const keyPressed = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        console.log(e.key, e.shiftKey, e.keyCode);
+        if (e.shiftKey && e.key === 'Enter') {
+            console.log('ShiftEnter', props.hotkey)
+            if (props.hotkey) {
+                props.hotkey.next();
+                e.preventDefault();
+            }
+        }
+    },[props.hotkey]);
+
     const ref = useRef<HTMLTextAreaElement>(null);
     useEffect(() => {
         if (ref && ref.current) {
@@ -80,7 +85,7 @@ const SerifBlock = observer((props: Props) => {
         }
     }, []);
 
-    const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item.id, label: item.name}));
+    const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item.name, label: item.name}));
     const value = opts.find((o) => o.value === data.selectorField.value);
     return (
         <Component>
@@ -92,12 +97,11 @@ const SerifBlock = observer((props: Props) => {
                 value={value}
             />
             <StyledTextArea inputRef={ref} value={data.textField.value}
-                            onChange={(e) => data.textField.onChange(e.target.value)}/>
+                            onChange={(e) => data.textField.onChange(e.target.value)}
+                            onKeyPress={keyPressed}
+            />
         </Component>
     );
 });
 
 export default SerifBlock;
-export {
-    SerifData
-}

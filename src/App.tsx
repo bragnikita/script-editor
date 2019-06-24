@@ -1,8 +1,8 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import './App.css';
-import SerifBlock from "./lib/serif";
 import styled from "styled-components";
-import SelectorField from "./lib/selector";
+import {BlockContainerController, ControllerContext, ScriptContoller} from "./lib/controller";
+import {BlockContainer} from "./lib/block_container";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -21,41 +21,22 @@ const Container = styled.div`
     min-width: 300px;
 `;
 
-const SerifTestWrapper = () => {
-
-    const fetch = useCallback((request?: string) => {
-        const list: { name: string, id: string }[] = [
-            {id: "1", name: "Felicia"},
-            {id: "2", name: "Yachio"},
-            {id: "3", name: "Iroha"},
-        ];
-
-        if (!request) {
-            return list;
-        }
-
-        const normalizedRequest = request.trim().toLowerCase().replace(" ", "");
-        return list.filter((item) => {
-            const normalized = item.name.toLowerCase().replace(" ", "");
-            return normalized.startsWith(normalizedRequest);
-
-        });
-    }, []);
-    const [data] = useState({
-        text: "",
-    });
-
-    return <SerifBlock fetchCandidates={fetch} data={data} nameRequest={"ya"}/>
-};
 
 const App: React.FC = () => {
+
+    const [controller] = useState(new ScriptContoller());
+    const [block] = useState(() => {
+        const c = new BlockContainerController();
+        c.addBlock();
+        return c;
+    });
+
     return (
         <CenterCol>
             <Container>
-                <SerifTestWrapper/>
-            </Container>
-            <Container>
-                <SelectorField/>
+                <ControllerContext.Provider value={controller}>
+                    <BlockContainer block={block}/>
+                </ControllerContext.Provider>
             </Container>
         </CenterCol>
     );
