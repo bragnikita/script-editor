@@ -42,9 +42,25 @@ html {
   display: flex;
   align-items: center;
 }
+.flex-hcenter {
+  display: flex;
+  justify-content: center;
+}
+.flex-right {
+  display: flex;
+  justify-content: flex-end;
+}
+.flext-left {
+  display: flex;
+  justify-content: flex-start;
+}
 
 .w-100 {
   width: 100%;
+}
+
+.h-100 {
+  height: 100%;
 }
 
 .block-wrapper {
@@ -68,6 +84,25 @@ html {
   right: 0;
 }
 
+.se_small_icon {
+  &:hover {
+    color: #00ccfff5;
+    cursor: pointer;
+  }
+}
+
+.b_selector {
+  position: relative;
+
+  .se_buttons {
+    position: absolute;
+    background: transparent;
+    left: 100px;
+    top: 0;
+    bottom: 0;
+  }
+}
+
 .serif {
   .selector, &.selector {
     margin-right: 1em;
@@ -78,6 +113,7 @@ html {
   .serif_selector__control {
     border: none;
   }
+
   .serif_selector__value-container {
     justify-content: flex-end;
   }
@@ -89,10 +125,61 @@ html {
     width: 100%;
     font-size: 15px;
     padding: 0.3em 0.5em;
-    color: black;
     font-style: italic;
     background-color: #d3d3d336;
     color: #656565;
+  }
+}
+
+.description {
+  .input {
+    border: none;
+    border-left: 2px solid deeppink;
+    border-bottom: 1px solid deeppink;
+    width: 100%;
+    font-size: 16px;
+    padding: 0.3em 0.5em;
+    background-color: white;
+    color: black;
+  }
+}
+
+.b_image {
+  height: 300px;
+  padding: 5px;
+  &.drop, .drop {
+    border: 4px dashed darkgray;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: lightgray;
+  }
+  .drop-label {
+    display: block;
+  }
+  .preview-container {
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+  }
+  .preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .figure {
+    width: auto;
+    overflow: hidden;
+    margin-bottom: 3px;
+  }
+
+  .preview {
+    margin: 0 auto;
+    height: 100%;
   }
 }
 
@@ -100,6 +187,7 @@ html {
   .buttons-container {
     min-width: 115px;
   }
+
   &:hover {
 
   }

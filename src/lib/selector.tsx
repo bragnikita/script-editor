@@ -4,7 +4,8 @@ import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
 import {BlockContainerController, ScriptBlock, ScriptContoller, SimpleTextData} from "./controller";
-import {EventBlock} from "./blocks";
+import {DescriptionBlock, EventBlock, ImageBlock} from "./blocks";
+import {IconButton, SmallIconButton} from "./components";
 
 const Input = styled.input`
   border: none;
@@ -16,7 +17,7 @@ const Input = styled.input`
 
 export const buildComponent = (block: ScriptBlock, container: BlockContainerController, script: ScriptContoller) => {
     const type = block.type;
-    const hotkeys = { next: () => container.addBlock(undefined, block ) };
+    const hotkeys = {next: () => container.addBlock(undefined, block)};
     if (type === "serif") {
         return <SerifBlock
             key={block.id}
@@ -28,6 +29,12 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
     if (type === "event") {
         return <EventBlock key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
     }
+    if (type === "description") {
+        return <DescriptionBlock key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
+    }
+    if (type === "image") {
+        return <ImageBlock key={block.id} data={block.data as ImageData}/>
+    }
     return null;
 };
 
@@ -38,15 +45,12 @@ const selectFieldComponent = (request: string) => {
         return ["block", request.substr(3)];
     }
     if (request.startsWith("--!")) {
-
         return ["image", request.substr(3)];
     }
     if (request.startsWith("--*")) {
-
         return ["description", request.substr(3)];
     }
     if (request.startsWith("--")) {
-
         return ["event", request.substr(2)];
     }
     if (request.length > 0) {
@@ -78,7 +82,12 @@ const SelectorField = observer((props: {
                 }
             };
 
+            const buttonSelectHandler = (e:any, componentName: string) => {
+                props.create(componentName, field.$)
+            };
+
             return {
+                buttonSelectHandler,
                 keyHandler: onKeyPressedHandler,
                 state: field
             };
@@ -92,9 +101,18 @@ const SelectorField = observer((props: {
         }
     }, []);
 
-    return <div className="w-100 flex-vcenter">
+    const hideButtons = store.state.value.startsWith("--") || store.state.value.length > 8;
+
+    return <div className="w-100 flex-vcenter b_selector">
         <Input type="text" onKeyDown={store.keyHandler} ref={ref}
-                  onChange={(e) => store.state.onChange(e.target.value)} value={store.state.value}/>
+               onChange={(e) => store.state.onChange(e.target.value)} value={store.state.value}/>
+        {!hideButtons && <div className={"se_buttons lined-3 flex-vcenter"}>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-comment" command="serif"/>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-image" command="image" alt={"Add image"}/>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-rss" command="event"/>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-align-justify" command="description"/>
+        </div>
+        }
     </div>
 });
 

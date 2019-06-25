@@ -44,6 +44,9 @@ const Block = observer(({model}: {
 
     return <div className="lined-3 w-100 block" onMouseEnter={() => hoverHandler("over")}
                 onMouseLeave={() => hoverHandler("out")}>
+        <div className="flex-hcenter flex-right">
+            <IconButton onClick={() => container.addBlock("selector", model)} command="create_after" iconSpec={"fas fa-plus"}/>
+        </div>
         <div className="flex-grow-1">
             <BlockRenderer
                 model={model}

@@ -66,10 +66,16 @@ export class SerifData {
 }
 
 export class SimpleTextData {
+    @observable
     text: string = "";
     meta: {
         request?: string
     } = {}
+}
+
+export class ImageData {
+    @observable
+    path: string = "";
 }
 
 export interface HotkeyHandle {
@@ -112,6 +118,15 @@ export class BlockContainerController {
         if (blockType === "event") {
             const data = new SimpleTextData();
             data.text = request || "";
+            return data;
+        }
+        if (blockType === "description") {
+            const data = new SimpleTextData();
+            data.text = request || "";
+            return data;
+        }
+        if (blockType === "image") {
+            const data = new ImageData();
             return data;
         }
         return {};
@@ -162,6 +177,8 @@ export class BlockContainerController {
 }
 
 export class ScriptContoller {
+
+    @observable
     list: { name: string }[] = [
         {name: "Felicia"},
         {name: "Yachio"},
@@ -182,7 +199,7 @@ export class ScriptContoller {
 
         });
         if (filtred.length == 0) {
-            const candidate = {name: request}
+            const candidate = {name: request};
             this.list.push(candidate);
             return [candidate];
         } else {
