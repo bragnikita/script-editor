@@ -42,14 +42,17 @@ html {
   display: flex;
   align-items: center;
 }
+
 .flex-hcenter {
   display: flex;
   justify-content: center;
 }
+
 .flex-right {
   display: flex;
   justify-content: flex-end;
 }
+
 .flext-left {
   display: flex;
   justify-content: flex-start;
@@ -82,6 +85,10 @@ html {
 .right-top {
   top: 0;
   right: 0;
+}
+
+.col-green {
+  color: green;
 }
 
 .se_small_icon {
@@ -147,6 +154,8 @@ html {
 .b_image {
   height: 300px;
   padding: 5px;
+  position: relative;
+
   &.drop, .drop {
     border: 4px dashed darkgray;
     border-radius: 10px;
@@ -155,20 +164,35 @@ html {
     align-items: center;
     background-color: lightgray;
   }
+
   .drop-label {
     display: block;
   }
+
   .preview-container {
     border: 1px solid darkgray;
     border-radius: 5px;
     padding: 5px;
     display: flex;
   }
+
   .preview-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
+  }
+
+  .finished_indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
+  .delete_image_btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
   }
 
   .figure {

@@ -1,4 +1,4 @@
-import {HotkeyHandle, SimpleTextData} from "./controller";
+import {HotkeyHandle, SimpleTextData, ImageData} from "./controller";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import * as React from "react";
@@ -7,6 +7,7 @@ import {DropEvent, useDropzone} from "react-dropzone";
 import {useCallback, useEffect, useState} from "react";
 import {inspect} from "util";
 import classnames from 'classnames';
+import {IconButton} from "./components";
 
 type Hotkeys = HotkeyHandle;
 
@@ -78,11 +79,28 @@ export const DescriptionBlock = observer((props: DescriptionBlockProps) => {
     </div>
 });
 
-export const ImageBlock = observer((props: any) => {
+type FnUpload = (file: File) => Promise<string>
+type FnDelete = () => Promise<void>
+
+interface ImageBlockProps {
+    data: ImageData,
+    onUpload: FnUpload,
+    onDelete: FnDelete,
+}
+
+export const ImageBlock = observer((props: ImageBlockProps) => {
 
     const [imgBin, setImgBin] = useState();
+    const [loadingStatus, setLoadingStatus] = useState("none");
 
-    const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: File[], e: DropEvent) => {
+    const onDelete = useCallback(async () => {
+        setLoadingStatus('loading');
+        await props.onDelete();
+        props.data.path = "";
+        setLoadingStatus('none');
+    }, []);
+
+    const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: File[], e: DropEvent) => {
         console.log(inspect(acceptedFiles));
         if (acceptedFiles.length > 0) {
             const file = acceptedFiles[0];
@@ -95,29 +113,55 @@ export const ImageBlock = observer((props: any) => {
                 setImgBin(res)
             });
             muFileReader.readAsDataURL(file);
+
+            setLoadingStatus('loading');
+            const imgPath = await props.onUpload(file);
+            URL.revokeObjectURL(imgBin);
+            setImgBin(undefined);
+            props.data.path = imgPath;
+            setLoadingStatus('finished');
+        }
+    }, [props.data]);
+    useEffect(() => () => {
+        if (imgBin) {
+            URL.revokeObjectURL(imgBin)
         }
     }, []);
-    useEffect(() => () => {if (imgBin) { URL.revokeObjectURL(imgBin) }},[]);
 
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop, multiple: false});
+    const {getRootProps, getInputProps} = useDropzone({onDrop, multiple: false});
 
     return <div className={classnames("b_image w-100 h-100")}>
+        {loadingStatus === 'finished' && <div className="finished_indicator">
+            <span className="icon fas fa-lg fa-check-circle col-green"/>
+        </div>
+        }
         <div {...getRootProps({
             className: classnames("w-100 h-100", {
-                "drop": !imgBin,
+                "drop": !imgBin && !props.data.path,
                 "preview-container": !!imgBin
             })
         })}>
             <input {...getInputProps()}/>
-            {!imgBin && <span className="drop-label">'Click here of drag and drop image'</span>}
+            {!imgBin && (
+                props.data.path ?
+                    <div className="preview-wrapper h-100">
+                        <img src={props.data.path} className="preview"/>
+                    </div>
+                    :
+                    <span className="drop-label">'Click here of drag and drop image'</span>
+            )}
             {imgBin &&
             <div className="preview-wrapper">
                 <figure className="figure">
                     <img src={imgBin} className="preview"/>
                 </figure>
-                <progress className="progress is-small is-primary" max="100">15%</progress>
+                {loadingStatus === "loading" &&
+                <progress className="progress is-small is-primary" max="100">15%</progress>}
             </div>
             }
         </div>
+        {props.data.path && loadingStatus !== "loading" &&
+        <IconButton onClick={onDelete} iconSpec="fas fa-trash" className="delete_image_btn"/>
+        }
     </div>
 });

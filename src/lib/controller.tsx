@@ -1,5 +1,6 @@
 import _ from "lodash";
 import {action, computed, observable} from "mobx";
+import {delay, timeout} from "q";
 
 const serializeData = (data?: any) => {
     if (!data) {
@@ -205,5 +206,16 @@ export class ScriptContoller {
         } else {
             return filtred;
         }
-    }
+    };
+
+    uploadImage = async (blockId: string, file: File) => {
+        console.log('Uploading', blockId, file.name)
+        await delay(3000);
+        return 'http://localhost:3004/image.jpg'
+    };
+
+    deleteImage = async (blockId: string) => {
+        console.log('Deleting', blockId);
+        await delay(500)
+    };
 }

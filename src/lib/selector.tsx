@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
-import {BlockContainerController, ScriptBlock, ScriptContoller, SimpleTextData} from "./controller";
+import {BlockContainerController, ScriptBlock, ScriptContoller, SimpleTextData, ImageData} from "./controller";
 import {DescriptionBlock, EventBlock, ImageBlock} from "./blocks";
 import {IconButton, SmallIconButton} from "./components";
 
@@ -33,7 +33,11 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
         return <DescriptionBlock key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
     }
     if (type === "image") {
-        return <ImageBlock key={block.id} data={block.data as ImageData}/>
+        return <ImageBlock key={block.id}
+                           data={block.data as ImageData}
+                           onUpload={async (f) => script.uploadImage(block.id, f)}
+                           onDelete={async () => script.deleteImage(block.id)}
+        />
     }
     return null;
 };
