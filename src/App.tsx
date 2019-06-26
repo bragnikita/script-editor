@@ -33,7 +33,7 @@ const App: React.FC = () => {
 
     const [controller] = useState(new ScriptContoller());
     const [block] = useState(() => {
-        const c = new BlockContainerController();
+        const c = new BlockContainerController("1", []);
         c.addBlock();
         return c;
     });

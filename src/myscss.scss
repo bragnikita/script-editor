@@ -113,7 +113,7 @@ html {
 .serif {
   .selector, &.selector {
     margin-right: 1em;
-    min-width: 170px;
+    min-width: 100px;
 
   }
 
@@ -204,6 +204,25 @@ html {
   .preview {
     margin: 0 auto;
     height: 100%;
+  }
+}
+
+.b_container {
+  min-width: 400px;
+  border-top: 2px solid purple;
+  border-left: 2px solid purple;
+  .header {
+    background-color: purple;
+    padding: 5px 5px 5px 10px ;
+    margin-bottom: 10px;
+  }
+  .blocks {
+    padding-left: 10px;
+  }
+  .title_input {
+    border: purple;
+    font-size: 15px;
+    padding-left: 5px;
   }
 }
 

@@ -1,13 +1,21 @@
-import {HotkeyHandle, SimpleTextData, ImageData} from "./controller";
+import {
+    HotkeyHandle,
+    SimpleTextData,
+    ImageData,
+    ScriptBlock,
+    BlockContainerController,
+    ContainerData
+} from "./controller";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import * as React from "react";
-import {useAutoCatchFocus, useTextHotkeys} from "./hooks";
+import {BlockContainerContext, useAutoCatchFocus, useTextHotkeys} from "./hooks";
 import {DropEvent, useDropzone} from "react-dropzone";
 import {useCallback, useEffect, useState} from "react";
 import {inspect} from "util";
 import classnames from 'classnames';
 import {IconButton} from "./components";
+import {Block} from "./block_renderer";
 
 type Hotkeys = HotkeyHandle;
 
@@ -163,5 +171,39 @@ export const ImageBlock = observer((props: ImageBlockProps) => {
         {props.data.path && loadingStatus !== "loading" &&
         <IconButton onClick={onDelete} iconSpec="fas fa-trash" className="delete_image_btn"/>
         }
+    </div>
+});
+
+interface ContainerBlockProps {
+    data: ContainerData
+    controller: BlockContainerController
+}
+
+export const ContainerBlock = observer((props: ContainerBlockProps) => {
+
+    const store = useLocalStore(() => {
+        const o = {
+            title: new FieldState(props.data.title),
+        }
+
+        return o;
+    });
+
+    return <div className="w-100 b_container">
+        <div className="header">
+            <input className="title_input w-100"
+                   value={store.title.value}
+                   onChange={(e) => store.title.onChange(e.target.value)}
+            />
+        </div>
+        <div className="blocks">
+            <BlockContainerContext.Provider value={props.controller}>
+                {props.controller.list.map((s: ScriptBlock, index: number) => {
+                    return <div key={s.id} className="block-wrapper">
+                        <Block model={s}/>
+                    </div>
+                })}
+            </BlockContainerContext.Provider>
+        </div>
     </div>
 });

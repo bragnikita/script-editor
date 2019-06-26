@@ -3,8 +3,15 @@ import styled from "styled-components";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
-import {BlockContainerController, ScriptBlock, ScriptContoller, SimpleTextData, ImageData} from "./controller";
-import {DescriptionBlock, EventBlock, ImageBlock} from "./blocks";
+import {
+    BlockContainerController,
+    ScriptBlock,
+    ScriptContoller,
+    SimpleTextData,
+    ImageData,
+    ContainerData
+} from "./controller";
+import {ContainerBlock, DescriptionBlock, EventBlock, ImageBlock} from "./blocks";
 import {IconButton, SmallIconButton} from "./components";
 
 const Input = styled.input`
@@ -38,6 +45,11 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
                            onUpload={async (f) => script.uploadImage(block.id, f)}
                            onDelete={async () => script.deleteImage(block.id)}
         />
+    }
+    if (type === "container") {
+        const data = block.data as ContainerData;
+        const blockController = new BlockContainerController(block.id, data.blocks);
+        return <ContainerBlock key={block.id} controller={blockController} data={data}/>
     }
     return null;
 };
@@ -115,6 +127,7 @@ const SelectorField = observer((props: {
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-image" command="image" alt={"Add image"}/>
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-rss" command="event"/>
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-align-justify" command="description"/>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-stream" command="container"/>
         </div>
         }
     </div>

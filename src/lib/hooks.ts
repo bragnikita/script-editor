@@ -6,14 +6,14 @@ export const ControllerContext = createContext<ScriptContoller | undefined>(unde
 export const BlockContainerContext = createContext<BlockContainerController | undefined>(undefined)
 
 export const useController = () => {
-    const controller = useContext(ControllerContext)
+    const controller = useContext(ControllerContext);
     if (controller) {
         return controller;
     }
     throw "Controller is not provided";
 };
 export const useContainer = () => {
-    const container = useContext(BlockContainerContext)
+    const container = useContext(BlockContainerContext);
     if (container) {
         return container;
     }

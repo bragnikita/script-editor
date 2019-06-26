@@ -1,6 +1,7 @@
 import _ from "lodash";
 import {action, computed, observable} from "mobx";
 import {delay, timeout} from "q";
+import {plainToClassFromExist} from 'class-transformer';
 
 const serializeData = (data?: any) => {
     if (!data) {
@@ -79,16 +80,30 @@ export class ImageData {
     path: string = "";
 }
 
+export class ContainerData {
+    @observable
+    title: string = "";
+    @observable
+    blocks: ScriptBlock[] = [];
+}
+
 export interface HotkeyHandle {
     next(): void
 }
 
 export class BlockContainerController {
 
+    id: string;
     @observable
     list: ScriptBlock[] = [];
 
+    constructor(id: string, list: ScriptBlock[]) {
+        this.id = id;
+        this.list = list;
+    }
+
     addBlock = (type?: string, after?: ScriptBlock) => {
+        console.log("addBlock", type, after);
         let block;
         if (!type || type === "selector") {
             block = new ScriptBlock(this.nextId, "selector")
@@ -128,6 +143,13 @@ export class BlockContainerController {
         }
         if (blockType === "image") {
             const data = new ImageData();
+            return data;
+        }
+        if (blockType === "container") {
+            const data = new ContainerData();
+            data.title = request || "";
+            const firstBlock = new ScriptBlock(this.nextId, "selector");
+            data.blocks.push(firstBlock);
             return data;
         }
         return {};
@@ -218,4 +240,36 @@ export class ScriptContoller {
         console.log('Deleting', blockId);
         await delay(500)
     };
+
+    importFromJson = (json: any) => {
+        const block = new ScriptBlock(json.id, json.type);
+        let data;
+        if (block.type === "serif") {
+            data = plainToClassFromExist(new SerifData(), json.data);
+        }
+        if (block.type === "event") {
+            data = plainToClassFromExist(new SimpleTextData(), json.data);
+        }
+        if (block.type === "image") {
+            data = plainToClassFromExist(new ImageData(), json.data);
+        }
+        if (block.type === "description") {
+            data = plainToClassFromExist(new SimpleTextData(), json.data);
+        }
+        if (block.type === "container") {
+            const d = new ContainerData();
+            d.title = json.data.title;
+            if (json.data.blocks) {
+                d.blocks = json.data.blocks.map((b: any) => {
+                    return this.importFromJson(b);
+                })
+            } else {
+                d.blocks = [];
+            }
+            data = d;
+        }
+        block.data = data;
+        return block;
+    }
+
 }
