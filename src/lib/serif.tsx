@@ -44,7 +44,7 @@ class Store {
     @observable
     text = "";
     @observable
-    selected = "";
+    selected = undefined as SelectorCandidate | undefined;
 
     model: SerifData;
 
@@ -63,25 +63,27 @@ class Store {
             }
         }
         this.allCandidates = props.fetchCandidates();
-        let selectedValue = props.data.character_name;
+        let selectedValue = this.allCandidates.find((c) => c.name === props.data.character_name);
         if (!selectedValue && selectedCandidate) {
-            selectedValue = selectedCandidate.name;
+            selectedValue = selectedCandidate;
         }
         if (!selectedValue && this.allCandidates.length > 0) {
-            selectedValue = this.allCandidates[0].name;
+            selectedValue = this.allCandidates[0];
         }
 
-        this.selected = selectedValue || "";
-        this.model.character_name = this.selected;
+        this.selected = selectedValue;
+        if (this.selected) {
+            this.model.character_name = this.selected.name;
+        }
     }
 
     onEditText = (text: string) => {
         this.text = text;
         this.model.text = text;
     };
-    onSelectorField = (text: string) => {
-        this.selected = text;
-        this.model.character_name = text;
+    onSelectorField = (item: SelectorCandidate) => {
+        this.selected = item;
+        this.model.character_name = item.name;
     }
 }
 
@@ -90,28 +92,18 @@ const SerifBlock = observer((props: Props) => {
 
     const [data] = useState(() => new Store(props));
 
-    const keyPressed = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        console.log(e.key, e.shiftKey, e.keyCode);
-        if (e.shiftKey && e.key === 'Enter') {
-            console.log('ShiftEnter', props.hotkey);
-            if (props.hotkey) {
-                props.hotkey.next();
-                e.preventDefault();
-            }
-        }
-    }, [props.hotkey]);
     const hotkeys = useTextHotkeys<HTMLTextAreaElement>(props.hotkey);
 
     const ref = useAutoCatchFocus<HTMLTextAreaElement>();
 
-    const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item.name, label: item.name}));
+    const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item, label: item.name}));
     const value = opts.find((o) => o.value === data.selected);
     return (
         <Component>
             <Select
                 options={opts}
                 onChange={(v: any) => {
-                    data.onSelectorField(v.value)
+                    data.onSelectorField(v)
                 }}
                 value={value}
                 className={"serif selector"}

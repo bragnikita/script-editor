@@ -1,9 +1,7 @@
-import React, {ReactNode, useCallback, useEffect, useState} from "react";
+import React, {ReactNode, useCallback, useState} from "react";
 import classnames from "classnames";
 import {BlockContainerController} from "./controller";
-import {reaction} from "mobx";
 import {observer} from "mobx-react";
-import {useAutoCatchFocus} from "./hooks";
 
 export interface ButtonProps<T> {
     onClick: (e: React.MouseEvent, command: string, param?: T) => void
@@ -18,6 +16,7 @@ export interface ButtonProps<T> {
 export const IconButton = <T extends {}>(props: ButtonProps<T> & { iconSpec: string }) => {
     return <a className={classnames(props.className, 'button')} onClick={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         props.onClick(e, props.command || "", props.param);
     }} {...{disabled: props.disabled}}>
         {props.children ? props.children :

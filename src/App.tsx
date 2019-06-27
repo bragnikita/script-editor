@@ -11,6 +11,7 @@ import '@fortawesome/fontawesome-free/js/regular'
 import '@fortawesome/fontawesome-free/js/brands'
 import {DataDisplayer} from "./lib/components";
 import {SCRIPT} from "./test";
+import {CharaListPanel} from "./lib/chara_list";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -54,6 +55,7 @@ const App: React.FC = () => {
     const block = new BlockContainerController(controller.rootContainer.id, rootBlock.blocks);
     return (
         <CenterCol>
+            <CharaListPanel list={controller.list} onCharaRenamed={controller.renameCharacter}/>
             <Container>
                 <ControllerContext.Provider value={controller}>
                     <BlockContainer block={block}/>

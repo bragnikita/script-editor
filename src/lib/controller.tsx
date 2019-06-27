@@ -212,9 +212,8 @@ export class ScriptContoller {
     title: string = "";
     @observable
     rootContainer: ScriptBlock;
-    @observable
-    list: { name: string }[] = [
-    ];
+    list: { name: string }[] = observable([
+    ], { deep: true });
     private imagesRootPath: string = "";
 
     constructor(id: string) {
@@ -255,6 +254,23 @@ export class ScriptContoller {
     deleteImage = async (blockId: string) => {
         console.log('Deleting', blockId);
         await delay(500)
+    };
+
+    renameCharacter = (oldName: string, newName: string) => {
+        this._renameCharacter(this.rootContainer, oldName, newName);
+    };
+
+    private _renameCharacter = (block: ScriptBlock, oldName: string, newName: string) => {
+        if (block.type === 'serif') {
+            const data = block.data as SerifData;
+            if (data.character_name === oldName) {
+                data.character_name = newName;
+            }
+        }
+        if (block.type === 'container') {
+            const data = block.data as ContainerData;
+            data.blocks.forEach((b) => this._renameCharacter(b, oldName, newName));
+        }
     };
 
     importScript = (json: any) => {
