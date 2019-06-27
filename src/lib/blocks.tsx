@@ -16,8 +16,40 @@ import {inspect} from "util";
 import classnames from 'classnames';
 import {IconButton} from "./components";
 import {Block} from "./block_renderer";
+import Textarea from 'react-textarea-autosize';
 
 type Hotkeys = HotkeyHandle;
+
+interface FreeTextBlockProps {
+    data: SimpleTextData,
+    hotkeys: Hotkeys
+}
+
+export const FreeTextBlockProps  = observer((props:FreeTextBlockProps) => {
+    const store = useLocalStore(() => {
+        const o = {
+            field: new FieldState<string>(props.data.text)
+        };
+        o.field.onDidChange(({newValue}) => {
+            props.data.text = newValue
+        });
+        return o;
+    });
+
+    const hotkeys = useTextHotkeys<HTMLTextAreaElement>(props.hotkeys);
+    const ref = useAutoCatchFocus<HTMLTextAreaElement>();
+
+
+    return <div className="b_freetext w-100 flex-vcenter">
+        <Textarea
+            className="input w-100"
+            onChange={(e) => store.field.onChange(e.target.value)}
+            value={store.field.value}
+            inputRef={ref}
+            {...hotkeys}
+        />
+    </div>
+});
 
 interface EventBlockProps {
     data: SimpleTextData,
@@ -184,17 +216,22 @@ export const ContainerBlock = observer((props: ContainerBlockProps) => {
     const store = useLocalStore(() => {
         const o = {
             title: new FieldState(props.data.title),
-        }
+        };
+        o.title.onDidChange(config => props.data.title = config.newValue);
 
         return o;
     });
 
+    const Title = observer(({state}:{state:FieldState<string>}) => {
+        return  <input className="title_input w-100"
+                       value={state.value}
+                       onChange={(e) => state.onChange(e.target.value)}
+        />
+    });
+
     return <div className="w-100 b_container">
         <div className="header">
-            <input className="title_input w-100"
-                   value={store.title.value}
-                   onChange={(e) => store.title.onChange(e.target.value)}
-            />
+            <Title state={store.title} />
         </div>
         <div className="blocks">
             <BlockContainerContext.Provider value={props.controller}>

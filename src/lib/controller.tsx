@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {action, computed, observable} from "mobx";
 import {delay, timeout} from "q";
-import {plainToClassFromExist} from 'class-transformer';
+import {Exclude, plainToClassFromExist} from 'class-transformer';
 
 const serializeData = (data?: any) => {
     if (!data) {
@@ -55,6 +55,7 @@ export class BlockMeta {
 export class SerifData {
     character_name?: string;
     text: string = "";
+    @Exclude()
     meta: {
         request?: string
     } = {};
@@ -70,6 +71,7 @@ export class SerifData {
 export class SimpleTextData {
     @observable
     text: string = "";
+    @Exclude()
     meta: {
         request?: string
     } = {}
@@ -152,6 +154,11 @@ export class BlockContainerController {
             data.blocks.push(firstBlock);
             return data;
         }
+        if (blockType === "freetext") {
+            const data = new SimpleTextData();
+            data.text = request || "";
+            return data;
+        }
         return {};
     };
 
@@ -195,18 +202,27 @@ export class BlockContainerController {
 
 
     private get nextId() {
-        return _.random(0, 999999999999).toString(10)
+        return this.id + "_" + _.random(0, 999999999999).toString(10)
     }
 }
 
 export class ScriptContoller {
 
     @observable
+    title: string = "";
+    @observable
+    rootContainer: ScriptBlock;
+    @observable
     list: { name: string }[] = [
-        {name: "Felicia"},
-        {name: "Yachio"},
-        {name: "Iroha"},
     ];
+    private imagesRootPath: string = "";
+
+    constructor(id: string) {
+        this.rootContainer = new ScriptBlock(id, "container");
+        const d = new ContainerData();
+        d.blocks.push(new ScriptBlock(this.nextId(), "selector"));
+        this.rootContainer.data = d;
+    }
 
     fetchCharacters = (request?: string) => {
 
@@ -233,7 +249,7 @@ export class ScriptContoller {
     uploadImage = async (blockId: string, file: File) => {
         console.log('Uploading', blockId, file.name)
         await delay(3000);
-        return 'http://localhost:3004/image.jpg'
+        return `${this.imagesRootPath}/image.jpg`
     };
 
     deleteImage = async (blockId: string) => {
@@ -241,11 +257,23 @@ export class ScriptContoller {
         await delay(500)
     };
 
-    importFromJson = (json: any) => {
+    importScript = (json: any) => {
+        this.title = json.title;
+        this.imagesRootPath = json.imagesRootPath;
+        this.rootContainer = this.importFromJson(json.root)
+    };
+
+    private importFromJson = (json: any) => {
         const block = new ScriptBlock(json.id, json.type);
         let data;
         if (block.type === "serif") {
             data = plainToClassFromExist(new SerifData(), json.data);
+            const charaName = (data as SerifData).character_name;
+            if (charaName) {
+                if (!this.list.find((c) => c.name === charaName)) {
+                    this.list.push({ name: charaName });
+                }
+            }
         }
         if (block.type === "event") {
             data = plainToClassFromExist(new SimpleTextData(), json.data);
@@ -270,6 +298,10 @@ export class ScriptContoller {
         }
         block.data = data;
         return block;
+    };
+
+    nextId = () => {
+        return this.rootContainer.id + "_" + _.random(0, 999999999999).toString(10)
     }
 
 }

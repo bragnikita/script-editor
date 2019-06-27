@@ -11,7 +11,7 @@ import {
     ImageData,
     ContainerData
 } from "./controller";
-import {ContainerBlock, DescriptionBlock, EventBlock, ImageBlock} from "./blocks";
+import {ContainerBlock, DescriptionBlock, EventBlock, FreeTextBlockProps, ImageBlock} from "./blocks";
 import {IconButton, SmallIconButton} from "./components";
 
 const Input = styled.input`
@@ -45,6 +45,9 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
                            onUpload={async (f) => script.uploadImage(block.id, f)}
                            onDelete={async () => script.deleteImage(block.id)}
         />
+    }
+    if (type === "freetext") {
+        return <FreeTextBlockProps key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
     }
     if (type === "container") {
         const data = block.data as ContainerData;
@@ -127,6 +130,7 @@ const SelectorField = observer((props: {
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-image" command="image" alt={"Add image"}/>
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-rss" command="event"/>
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-align-justify" command="description"/>
+            <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-comment-alt" command="freetext"/>
             <SmallIconButton onClick={store.buttonSelectHandler} iconSpec="fas fa-stream" command="container"/>
         </div>
         }

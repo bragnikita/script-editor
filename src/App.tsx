@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.css';
 import styled from "styled-components";
-import {BlockContainerController, ScriptContoller} from "./lib/controller";
+import {BlockContainerController, ContainerData, ScriptContoller} from "./lib/controller";
 import {ControllerContext} from "./lib/hooks"
 import {BlockContainer} from "./lib/block_container";
 import 'bulma'
@@ -10,6 +10,7 @@ import '@fortawesome/fontawesome-free/js/solid'
 import '@fortawesome/fontawesome-free/js/regular'
 import '@fortawesome/fontawesome-free/js/brands'
 import {DataDisplayer} from "./lib/components";
+import {SCRIPT} from "./test";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -31,13 +32,26 @@ const Container = styled.div`
 
 const App: React.FC = () => {
 
-    const [controller] = useState(new ScriptContoller());
-    const [block] = useState(() => {
-        const c = new BlockContainerController("1", []);
-        c.addBlock();
+    const id = "001";
+    const [controller] = useState(() => {
+        const s = {
+            title: "Battle 1",
+            imagesRootPath: `http://localhost:3004`,
+            root: {
+                id: id,
+                type: "container",
+                data: {
+                    title: "",
+                    blocks: SCRIPT
+                }
+            }
+        };
+        const c = new ScriptContoller(s.root.id);
+        c.importScript(s);
         return c;
     });
-
+    const rootBlock = controller.rootContainer.data as ContainerData;
+    const block = new BlockContainerController(controller.rootContainer.id, rootBlock.blocks);
     return (
         <CenterCol>
             <Container>
