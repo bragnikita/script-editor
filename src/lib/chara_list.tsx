@@ -2,11 +2,13 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {observer} from 'mobx-react'
 import {IconButton} from "./components";
 import {FieldState} from "formstate";
-import {action, observable} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import classnames from 'classnames';
+import _  from 'lodash';
 import {useInputHotKeys} from "./hooks";
+import {CharaListItem} from "./models";
 
-type CharaListItem = { name: string }
+
 
 interface CharaListProps {
     list: CharaListItem[];
@@ -20,13 +22,23 @@ export const CharaListPanel = observer((props: CharaListProps) => {
 
         class Store {
             list = props.list;
-            nameField = new FieldState<string>("").enableAutoValidation();
+            @observable
+            filtered: CharaListItem[] = [];
+            nameField = new FieldState<string>("").enableAutoValidation().onDidChange(config => {
+                if (this.editing) {
+                    return;
+                }
+                this.doFilter(config.newValue)
+            });
             @observable
             editing: CharaListItem | null = null;
             @action
             delete = (e: any, command: string, param: any) => {
-                const index = this.list.indexOf(param);
-                this.list.splice(index, 1)
+                _.pull(this.list, param);
+                _.pull(this.filtered, param);
+                if (props.onCharaRenamed) {
+                    props.onCharaRenamed(param.name, "");
+                }
             };
             @action
             edit = (item: CharaListItem) => {
@@ -54,16 +66,43 @@ export const CharaListPanel = observer((props: CharaListProps) => {
                     this.nameField.onChange("");
                     this.list.push(chara);
                 }
+                this.resetList();
             };
             @action
             cancel = () => {
                 this.editing = null;
                 this.nameField.onChange("");
+                this.resetList();
             };
 
+            doFilter = _.debounce((search) => {
+                const target = search.toLowerCase();
+                runInAction(() => {
+                    let selected;
+                    if (target) {
+                        selected = this.list.filter((v: CharaListItem) => {
+                            const name = v.name.toLowerCase();
+                            return name.startsWith(target) || name.includes(target)
+                        });
+                    } else {
+                        selected = this.list;
+                    }
+                    this.filtered.splice(0, this.filtered.length);
+                    this.filtered.push(...selected)
+                });
+            }, 100);
+            @action
+            resetList = () => {
+                this.filtered.splice(0, this.filtered.length);
+                this.filtered.push(...this.list)
+            }
+
         }
-        console.log('recreated')
-        return new Store();
+
+        console.log('recreated');
+        const s = new Store();
+        s.resetList();
+        return s;
     });
 
     const AddNew = observer(({}: {}) => {
@@ -101,7 +140,7 @@ export const CharaListPanel = observer((props: CharaListProps) => {
             <AddNew/>
         </div>
         <div className="__list">
-            {store.list.map((item) => {
+            {store.filtered.map((item) => {
                 return <div key={item.name}
                             className={classnames('__list_item lined-2', {'selected': store.editing === item})}
                             onClick={() => store.edit(item)}>

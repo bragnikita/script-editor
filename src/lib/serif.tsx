@@ -4,8 +4,8 @@ import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import Select from 'react-select';
 import styled from "styled-components";
-import {HotkeyHandle, SerifData} from "./controller";
-import {observable, runInAction} from "mobx";
+import {HotkeyHandle, SerifData} from "./models";
+import {observable, reaction, runInAction} from "mobx";
 import {useAutoCatchFocus, useTextHotkeys} from "./hooks";
 
 const Component = styled.div`
@@ -44,7 +44,7 @@ class Store {
     @observable
     text = "";
     @observable
-    selected = undefined as SelectorCandidate | undefined;
+    selected = null as SelectorCandidate | null;
 
     model: SerifData;
 
@@ -68,10 +68,10 @@ class Store {
             selectedValue = selectedCandidate;
         }
         if (!selectedValue && this.allCandidates.length > 0) {
-            selectedValue = this.allCandidates[0];
+            selectedValue = undefined;
         }
 
-        this.selected = selectedValue;
+        this.selected = selectedValue || null;
         if (this.selected) {
             this.model.character_name = this.selected.name;
         }
@@ -97,13 +97,13 @@ const SerifBlock = observer((props: Props) => {
     const ref = useAutoCatchFocus<HTMLTextAreaElement>();
 
     const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item, label: item.name}));
-    const value = opts.find((o) => o.value === data.selected);
+    let value: any = opts.find((o) => o.value === data.selected) || null;
     return (
         <Component>
             <Select
                 options={opts}
                 onChange={(v: any) => {
-                    data.onSelectorField(v)
+                    data.onSelectorField(v.value)
                 }}
                 value={value}
                 className={"serif selector"}

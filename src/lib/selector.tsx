@@ -4,15 +4,14 @@ import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
 import {
-    BlockContainerController,
     ScriptBlock,
-    ScriptContoller,
     SimpleTextData,
     ImageData,
     ContainerData
-} from "./controller";
+} from "./models";
 import {ContainerBlock, DescriptionBlock, EventBlock, FreeTextBlockProps, ImageBlock} from "./blocks";
 import {IconButton, SmallIconButton} from "./components";
+import {BlockContainerController, ScriptContoller} from "./controller";
 
 const Input = styled.input`
   border: none;
