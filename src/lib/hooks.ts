@@ -86,3 +86,24 @@ export const useAutoCatchFocus = <T extends HTMLElement>(useR?: React.RefObject<
 export const useActiveFocus = <T extends HTMLElement>(useR?: React.RefObject<T>) => {
 
 };
+
+export function useOutsideAlerter<T extends HTMLElement>(ref: React.RefObject<T>) {
+    /**
+     * Alert if clicked on outside of element
+     */
+    function handleClickOutside(event: MouseEvent) {
+        console.log(event.target, ref.current)
+        if (ref.current && !(ref.current === event.target as any)) {
+            alert("You clicked outside of me!");
+        }
+    }
+
+    useEffect(() => {
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    });
+}

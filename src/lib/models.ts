@@ -93,3 +93,11 @@ export class ContainerData {
 export interface HotkeyHandle {
     next(): void
 }
+
+export class CharactersList {
+    @observable
+    title: string = "";
+    items: CharaListItem[] = observable([], {deep: true});
+    @observable
+    stale: boolean = false;
+}

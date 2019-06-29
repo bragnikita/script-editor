@@ -12,7 +12,7 @@ import '@fortawesome/fontawesome-free/js/brands'
 import {DataDisplayer} from "./lib/components";
 import {SCRIPT} from "./test";
 import {CharacterEditDialog, CharaListPanel} from "./lib/chara_list";
-import {ContainerData} from "./lib/models";
+import {CharactersList, ContainerData} from "./lib/models";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -48,7 +48,7 @@ const App: React.FC = () => {
                 }
             }
         };
-        const c = new ScriptContoller(s.root.id);
+        const c = new ScriptContoller(s.root.id, new CharactersList());
         c.importScript(s);
         return c;
     });

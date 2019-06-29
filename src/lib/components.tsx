@@ -11,10 +11,11 @@ export interface ButtonProps<T> {
     param?: T
     disabled?: boolean
     alt?: string
+    small?: boolean
 }
 
 export const IconButton = <T extends {}>(props: ButtonProps<T> & { iconSpec: string }) => {
-    return <a className={classnames(props.className, 'button')} onClick={(e) => {
+    return <a className={classnames(props.className, 'button', {'is-small': props.small})} onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         props.onClick(e, props.command || "", props.param);

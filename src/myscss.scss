@@ -128,9 +128,16 @@ html {
 }
 
 .serif {
+
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  align-items: center;
+
   .selector, &.selector {
     margin-right: 1em;
     min-width: 130px;
+
 
   }
 
@@ -141,6 +148,40 @@ html {
   .serif_selector__value-container {
     justify-content: flex-end;
   }
+
+  .__textarea_wrapper {
+    flex-grow: 1;
+  }
+
+  .__textarea {
+    width: 100%;
+    min-height: 1.4em;
+    font-size: 17px;
+    padding: 0.35em 0.5em;
+    border: 1px lightgray solid;
+    border-radius: 4px;
+  }
+
+  .__preview {
+    flex-grow: 1;
+    min-height: 1.4em;
+    font-size: 17px;
+    padding: 0.35em 0.5em;
+    text-align: left;
+    white-space: pre;
+  }
+
+  .__toolbox {
+    position: absolute;
+    width: auto;
+    border: 1px solid gray;
+    background-color: white;
+    padding: 3px 5px;
+    border-radius: 5px;
+    top: -2.3rem;
+    left: 0;
+  }
+
 }
 
 .event {
@@ -271,5 +312,16 @@ html {
   }
   .__list_item {
 
+  }
+}
+
+.character_list_editor {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  .btn_ok {
+    margin-top: 1em;
   }
 }

@@ -2,7 +2,7 @@ import _ from "lodash";
 import {action, computed, observable} from "mobx";
 import {delay, timeout} from "q";
 import {Exclude, plainToClassFromExist} from 'class-transformer';
-import {ContainerData, ScriptBlock, SerifData, SimpleTextData, ImageData} from "./models";
+import {ContainerData, ScriptBlock, SerifData, SimpleTextData, ImageData, CharactersList} from "./models";
 
 
 
@@ -125,11 +125,11 @@ export class ScriptContoller {
     title: string = "";
     @observable
     rootContainer: ScriptBlock;
-    list: { name: string }[] = observable([
-    ], { deep: true });
+    list: CharactersList;
     private imagesRootPath: string = "";
 
-    constructor(id: string) {
+    constructor(id: string, chara: CharactersList) {
+        this.list = chara;
         this.rootContainer = new ScriptBlock(id, "container");
         const d = new ContainerData();
         d.blocks.push(new ScriptBlock(this.nextId(), "selector"));
@@ -140,18 +140,18 @@ export class ScriptContoller {
 
 
         if (!request) {
-            return this.list;
+            return this.list.items;
         }
 
         const normalizedRequest = request.trim().toLowerCase().replace(" ", "");
-        const filtred = this.list.filter((item) => {
+        const filtred = this.list.items.filter((item) => {
             const normalized = item.name.toLowerCase().replace(" ", "");
             return normalized.startsWith(normalizedRequest);
 
         });
         if (filtred.length == 0) {
             const candidate = {name: request};
-            this.list.push(candidate);
+            this.list.items.push(candidate);
             return [candidate];
         } else {
             return filtred;
@@ -199,8 +199,8 @@ export class ScriptContoller {
             data = plainToClassFromExist(new SerifData(), json.data);
             const charaName = (data as SerifData).character_name;
             if (charaName) {
-                if (!this.list.find((c) => c.name === charaName)) {
-                    this.list.push({ name: charaName });
+                if (!this.list.items.find((c) => c.name === charaName)) {
+                    this.list.items.push({ name: charaName });
                 }
             }
         }

@@ -4,14 +4,14 @@ import {IconButton} from "./components";
 import {FieldState} from "formstate";
 import {action, observable, runInAction} from "mobx";
 import classnames from 'classnames';
-import _  from 'lodash';
+import _ from 'lodash';
 import {useInputHotKeys} from "./hooks";
-import {CharaListItem} from "./models";
-
+import {CharactersList, CharaListItem} from "./models";
+import Select from "react-select";
 
 
 interface CharaListProps {
-    list: CharaListItem[];
+    list: CharactersList;
     onCharaRenamed?: (oldName: string, newName: string) => void
     inputRef?: React.RefObject<HTMLInputElement>
 }
@@ -21,7 +21,7 @@ export const CharaListPanel = observer((props: CharaListProps) => {
     const [store] = useState(() => {
 
         class Store {
-            list = props.list;
+            list = props.list.items;
             @observable
             filtered: CharaListItem[] = [];
             nameField = new FieldState<string>("").enableAutoValidation().onDidChange(config => {
@@ -47,7 +47,9 @@ export const CharaListPanel = observer((props: CharaListProps) => {
             };
             @action
             commit = () => {
-                const newName = this.nameField.value;
+                let newName = this.nameField.value;
+                if (newName && newName.trim().length == 0) return;
+                newName = newName.trim();
                 if (this.list.find((v) => v.name === newName)) {
                     return;
                 }
@@ -77,6 +79,7 @@ export const CharaListPanel = observer((props: CharaListProps) => {
 
             doFilter = _.debounce((search) => {
                 const target = search.toLowerCase();
+                if (target && target.trim().length == 0) return;
                 runInAction(() => {
                     let selected;
                     if (target) {
@@ -196,3 +199,39 @@ export const CharacterEditDialog = (props: CharacterEditDialogProps) => {
         </div>
     </React.Fragment>
 };
+
+export const CharacterListList = observer((props: {
+        collection: CharactersList[],
+        onSelect: (list?: CharactersList) => void
+    }) => {
+        const [store] = useState(() => {
+
+            class CharacterListStore {
+                list = props.collection;
+                selected: CharactersList | null = null;
+
+                @action
+                select = (v: CharactersList) => {
+                    this.selected = v;
+                };
+
+                constructor() {
+                    this.list = props.collection;
+                }
+            }
+
+            return new CharacterListStore();
+        });
+        const opts = store.list.map((l) => ({label: l.title, value: l}));
+        const value = opts.find((o) => o.value === store.selected);
+        return <div className="character_list_editor">
+            <Select
+                className={"w-100 selector"}
+                options={opts}
+                value={value || null}
+                onChange={(opt: any) => store.select(opt.value)}
+            />
+            <button className="button is-rounded btn_ok" onClick={() => props.onSelect(store.selected || undefined)}>Select</button>
+        </div>
+    })
+;
