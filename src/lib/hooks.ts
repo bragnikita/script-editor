@@ -107,3 +107,11 @@ export function useOutsideAlerter<T extends HTMLElement>(ref: React.RefObject<T>
         };
     });
 }
+
+export const useHtmlDirectInsert = (ref: React.RefObject<HTMLElement>, text: () => string) => {
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.innerHTML = text();
+        }
+    })
+};

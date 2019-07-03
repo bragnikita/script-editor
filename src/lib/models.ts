@@ -56,6 +56,8 @@ export class BlockMeta {
 export class SerifData {
     character_name?: string;
     text: string = "";
+    // curtain or general (or "")
+    type: string = "";
     @Exclude()
     meta: {
         request?: string

@@ -119,6 +119,13 @@ export class BlockContainerController {
     }
 }
 
+export interface ScriptEditorModelConfig {
+    onImageUpload(file: File, blockId: string): Promise<string>
+    onImageDelete(blockId: string): Promise<void>
+    onScriptSave(json: any): Promise<void>
+    autosaveInterval: number
+}
+
 export class ScriptContoller {
 
     @observable
@@ -127,9 +134,11 @@ export class ScriptContoller {
     rootContainer: ScriptBlock;
     list: CharactersList;
     private imagesRootPath: string = "";
+    private config?: ScriptEditorModelConfig;
 
-    constructor(id: string, chara: CharactersList) {
+    constructor(id: string, chara: CharactersList, config?: ScriptEditorModelConfig) {
         this.list = chara;
+        this.config = config;
         this.rootContainer = new ScriptBlock(id, "container");
         const d = new ContainerData();
         d.blocks.push(new ScriptBlock(this.nextId(), "selector"));
@@ -160,11 +169,17 @@ export class ScriptContoller {
 
     uploadImage = async (blockId: string, file: File) => {
         console.log('Uploading', blockId, file.name)
+        if (this.config) {
+            return await this.config.onImageUpload(file, blockId);
+        }
         await delay(3000);
         return `${this.imagesRootPath}/image.jpg`
     };
 
     deleteImage = async (blockId: string) => {
+        if (this.config) {
+            return await this.config.onImageDelete(blockId);
+        }
         console.log('Deleting', blockId);
         await delay(500)
     };

@@ -90,6 +90,9 @@ html {
 .col-green {
   color: green;
 }
+.col-red {
+  color: red;
+}
 
 .mb-1 {margin-bottom: 0.3rem}
 .mb-2 {margin-bottom: 0.5rem}
@@ -182,6 +185,25 @@ html {
     left: 0;
   }
 
+  .minds {
+    font-style: italic;
+  }
+  .emotions {
+    color: #a7a7a7;
+  }
+  .emphasis {
+    font-weight: bold;
+    color: #a70c66;
+  }
+  .types_panel {
+    padding: 3px;
+  }
+
+  .curtain, .curtain > textarea {
+    background-color: #252525;
+    color: white;
+    border: none;
+  }
 }
 
 .event {
@@ -210,10 +232,12 @@ html {
 }
 
 .b_image {
-  height: 300px;
   padding: 5px;
   position: relative;
-
+  min-height: 25px;
+  &.not_set {
+    height: 300px;
+  }
   &.drop, .drop {
     border: 4px dashed darkgray;
     border-radius: 10px;
@@ -243,14 +267,14 @@ html {
 
   .finished_indicator {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 8px;
+    right: 8px;
   }
 
   .delete_image_btn {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: 8px;
+    right: 8px;
   }
 
   .figure {
@@ -261,7 +285,7 @@ html {
 
   .preview {
     margin: 0 auto;
-    height: 100%;
+    max-height: 400px;
   }
 }
 

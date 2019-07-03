@@ -1,17 +1,14 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import Textarea from 'react-textarea-autosize';
-import {observer, useLocalStore} from "mobx-react";
-import {FieldState} from "formstate";
+import {observer} from "mobx-react";
 import Select from 'react-select';
-import styled from "styled-components";
 import {HotkeyHandle, SerifData} from "./models";
 import {action, computed, observable, reaction, runInAction} from "mobx";
-import {useAutoCatchFocus, useOutsideAlerter, useTextHotkeys} from "./hooks";
+import {useHtmlDirectInsert, useTextHotkeys} from "./hooks";
 import _ from "lodash";
-import {getCursorXY} from "./utils";
-import $ from 'jquery';
 import onClickOutside from "react-onclickoutside";
 import {IconButton} from "./components";
+import {processFormattedText} from "./utils";
 
 
 type SelectorCandidate = {
@@ -30,6 +27,15 @@ class Store {
 
     @observable
     text = "";
+
+    @computed
+    get previewText() {
+        return processFormattedText(this.text);
+    }
+
+    @observable
+    type = "general";
+
     @observable
     selected = null as SelectorCandidate | null;
 
@@ -64,12 +70,6 @@ class Store {
     @action
     onHover = () => {
         this.hovered = true;
-        this.f = _.debounce(() => {
-            if (this.hovered) {
-                runInAction(() => this.mode = "edit")
-            }
-        }, 300)
-        // this.f();
     };
     @action
     onLeave = () => {
@@ -87,6 +87,14 @@ class Store {
         let afterPos = this.text.length;
         if (param === "emotion") {
             this.text = before + '*' + wrapped + '*' + after;
+            afterPos = this.selection.end + 2;
+        }
+        if (param === "minds") {
+            this.text = before + '(' + wrapped + ')' + after;
+            afterPos = this.selection.end + 2;
+        }
+        if (param === 'emphases') {
+            this.text = before + '_' + wrapped + '_' + after;
             afterPos = this.selection.end + 2;
         }
         this.setSelectedRange();
@@ -111,11 +119,10 @@ class Store {
 
     setCursorTo = -1;
 
-    private f: any
-
     constructor(props: Props) {
         this.model = props.data;
         this.text = props.data.text;
+        this.type = props.data.type || "general";
         let selectedCandidate;
         let candidates;
         if (props.data.meta.request) {
@@ -140,26 +147,40 @@ class Store {
         reaction(() => this.selectedText, () => console.log(this.selectedText))
     }
 
+    @action
     onEditText = (text: string) => {
         this.text = text;
         this.model.text = text;
     };
+
+    @action
+    onSwitchMode = (e: any, command?: string, mode?: string) => {
+        this.type = mode || "";
+        this.model.type = mode || "";
+        this.mode = "edit"
+        console.log(this.type, this.mode);
+    };
+
+    @action
     onSelectorField = (item: SelectorCandidate) => {
         this.selected = item;
         this.model.character_name = item.name;
     }
-}
+};
 
 
 const SerifBlock = observer((props: Props) => {
 
-    const ref = useRef<HTMLTextAreaElement>(null)
+    const ref = useRef<HTMLTextAreaElement>(null);
 
     const [data] = useState(() => {
         const s = new Store(props);
         s.getFocus = () => ref;
         return s;
     });
+
+    const previewRef = useRef<HTMLDivElement>(null);
+    useHtmlDirectInsert(previewRef, () => data.previewText);
 
     const hotkeys = useTextHotkeys<HTMLTextAreaElement>(props.hotkey);
 
@@ -182,7 +203,7 @@ const SerifBlock = observer((props: Props) => {
                 data.setCursorTo = -1;
             }
         }
-    },[data.setCursorTo])
+    }, [data.setCursorTo])
 
     const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item, label: item.name}));
     let value: any = opts.find((o) => o.value === data.selected) || null;
@@ -214,40 +235,42 @@ const SerifBlock = observer((props: Props) => {
                 classNamePrefix={"serif_selector"}
                 components={{IndicatorSeparator: null, DropdownIndicator: null}}
             />
-            {data.mode === "edit" &&
-            <div className="relative __textarea_wrapper">
-                {data.selectedText &&
-                <Toolbox/>
-                }
-                <Textarea
-                    className={"__textarea"}
-                    inputRef={ref} value={data.text}
-                    onChange={(e) => data.onEditText(e.target.value)}
-                    {...hotkeys}
-                    onBlur={data.onFocusLost}
-                    onSelect={(e) => {
-                        const start = e.currentTarget.selectionStart;
-                        const end = e.currentTarget.selectionEnd;
-                        if (end > start) {
-                            data.setSelectedRange({start, end})
-                        } else {
-                            data.setSelectedRange()
+            <React.Fragment>
+                <div className={`relative __textarea_wrapper flex-vcenter ${data.type}`}>
+                    {data.selectedText &&
+                    <Toolbox/>
+                    }
+                    <Textarea
+                        className={"__textarea"}
+                        inputRef={ref} value={data.text}
+                        onChange={(e) => data.onEditText(e.target.value)}
+                        {...hotkeys}
+                        onBlur={data.onFocusLost}
+                        onSelect={(e) => {
+                            const start = e.currentTarget.selectionStart;
+                            const end = e.currentTarget.selectionEnd;
+                            if (end > start) {
+                                data.setSelectedRange({start, end})
+                            } else {
+                                data.setSelectedRange()
+                            }
                         }
+                        }
+                    />
+                </div>
+                <div className="types_panel flex-vcenter">
+                    {data.type === 'general' && <IconButton onClick={data.onSwitchMode}
+                                                            iconSpec={`fas fa-eye-slash is-small`}
+                                                            command="type"
+                                                            param="curtain"/>
                     }
+                    {data.type === 'curtain' && <IconButton onClick={data.onSwitchMode}
+                                                            iconSpec={`fas fa-eye is-small`}
+                                                            command="type"
+                                                            param="general"/>
                     }
-                />
-            </div>
-            }
-            {data.mode === "preview" &&
-            <div
-                className="__preview"
-                onMouseEnter={data.onHover}
-                onMouseLeave={data.onLeave}
-                onClick={switchEditMode}
-            >
-                {data.text}
-            </div>
-            }
+                </div>
+            </React.Fragment>
         </div>
     );
 });

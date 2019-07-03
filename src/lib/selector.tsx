@@ -41,8 +41,8 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
     if (type === "image") {
         return <ImageBlock key={block.id}
                            data={block.data as ImageData}
-                           onUpload={async (f) => script.uploadImage(block.id, f)}
-                           onDelete={async () => script.deleteImage(block.id)}
+                           onUpload={async (f) => await script.uploadImage(block.id, f)}
+                           onDelete={async () => await script.deleteImage(block.id)}
         />
     }
     if (type === "freetext") {

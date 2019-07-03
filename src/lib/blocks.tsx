@@ -154,11 +154,15 @@ export const ImageBlock = observer((props: ImageBlockProps) => {
             muFileReader.readAsDataURL(file);
 
             setLoadingStatus('loading');
-            const imgPath = await props.onUpload(file);
-            URL.revokeObjectURL(imgBin);
-            setImgBin(undefined);
-            props.data.path = imgPath;
-            setLoadingStatus('finished');
+            try {
+                const imgPath = await props.onUpload(file);
+                URL.revokeObjectURL(imgBin);
+                setImgBin(undefined);
+                props.data.path = imgPath;
+                setLoadingStatus('finished');
+            } catch (e) {
+                setLoadingStatus('error')
+            }
         }
     }, [props.data]);
     useEffect(() => () => {
@@ -168,10 +172,14 @@ export const ImageBlock = observer((props: ImageBlockProps) => {
     }, []);
 
     const {getRootProps, getInputProps} = useDropzone({onDrop, multiple: false});
-
-    return <div className={classnames("b_image w-100 h-100")}>
+    const notSet = !imgBin && !props.data.path;
+    return <div className={classnames("b_image w-100 h-100", {'not_set': notSet})}>
         {loadingStatus === 'finished' && <div className="finished_indicator">
             <span className="icon fas fa-lg fa-check-circle col-green"/>
+        </div>
+        }
+        {loadingStatus === 'error' && <div className="finished_indicator">
+            <span className="icon fas fa-lg fa-exclamation-circle col-red"/>
         </div>
         }
         <div {...getRootProps({
