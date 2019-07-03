@@ -12,7 +12,7 @@ export const SCRIPT = [
         "type": "serif",
         "data": {
             "character_name": "Yachio",
-            "text": "Привет"
+            "text": "Привет. Видели _это_? *показывает за окно*"
         }
     },
     {
@@ -20,7 +20,7 @@ export const SCRIPT = [
         "type": "serif",
         "data": {
             "character_name": "Iroha",
-            "text": "Доброе утро"
+            "text": "Доброе утро (вот разорались)"
         }
     },
     {

@@ -9,10 +9,11 @@ import '@fortawesome/fontawesome-free/js/fontawesome'
 import '@fortawesome/fontawesome-free/js/solid'
 import '@fortawesome/fontawesome-free/js/regular'
 import '@fortawesome/fontawesome-free/js/brands'
-import {DataDisplayer} from "./lib/components";
+import {DataDisplayer, PreviewDisplayer} from "./lib/components";
 import {SCRIPT} from "./test";
 import {CharacterEditDialog, CharaListPanel} from "./lib/chara_list";
 import {CharactersList, ContainerData} from "./lib/models";
+import PreviewPanel from "./lib/preview";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -21,7 +22,7 @@ display: flex;
 flex-direction: column;`;
 
 const Container = styled.div`
-    display: inline-flex;
+    display: inline-flex;Ø
     align-items: center;
     justify-content: center;
     margin: 20px auto;
@@ -102,6 +103,7 @@ const App: React.FC = () => {
                     <BlockContainer block={block}/>
                 </ControllerContext.Provider>
             </Container>
+            <PreviewDisplayer root={controller.rootContainer}/>
             <DataDisplayer block={block}/>
         </CenterCol>
     );

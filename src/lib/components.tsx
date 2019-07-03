@@ -2,6 +2,8 @@ import React, {ReactNode, useCallback, useState} from "react";
 import classnames from "classnames";
 import {BlockContainerController} from "./controller";
 import {observer} from "mobx-react";
+import {ScriptBlock} from "./models";
+import PreviewPanel from "./preview";
 
 export interface ButtonProps<T> {
     onClick: (e: React.MouseEvent, command: string, param?: T) => void
@@ -51,3 +53,16 @@ export const DataDisplayer = observer((props: { block: BlockContainerController 
         {JSON.stringify(json, null, 4)}
     </pre>
 });
+
+export const PreviewDisplayer = ({root}: {root: ScriptBlock}) => {
+    const [data, setData] = useState(() => ({ block: root }));
+    const refresh = useCallback(() => {
+        setData({ block: root })
+    },[])
+    return <div className={"relative"}>
+        <div className="absolute right-top">
+            <IconButton onClick={refresh} command="refresh" iconSpec="fas fa-sync"/>
+        </div>
+        <PreviewPanel script={data.block}/>
+    </div>
+}
