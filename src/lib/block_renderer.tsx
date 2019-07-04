@@ -4,6 +4,7 @@ import {observer} from "mobx-react";
 import {ScriptBlock} from "./models";
 import {useContainer, useController} from "./hooks";
 import {IconButton} from "./components";
+import classnames from 'classnames';
 import "../myscss.scss";
 
 const BlockRenderer = observer((props: {
@@ -44,7 +45,8 @@ export const Block = observer(({model}: {
     return <div className="lined-3 w-100 block" onMouseEnter={() => hoverHandler("over")}
                 onMouseLeave={() => hoverHandler("out")}>
         <div className="flex-hcenter flex-right">
-            <IconButton onClick={() => container.addBlock("selector", model)} command="create_after" iconSpec={"fas fa-plus"}/>
+            <IconButton className={classnames({"invisible": !showActions})}
+                onClick={() => container.addBlock("selector", model)} command="create_after" iconSpec={"fas fa-plus"}/>
         </div>
         <div className="flex-grow-1">
             <BlockRenderer

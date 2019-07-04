@@ -13,7 +13,8 @@ import {DataDisplayer, PreviewDisplayer} from "./lib/components";
 import {SCRIPT} from "./test";
 import {CharacterEditDialog, CharaListPanel} from "./lib/chara_list";
 import {CharactersList, ContainerData} from "./lib/models";
-import PreviewPanel from "./lib/preview";
+import "./preview.scss";
+import PreviewPanel, {PreviewDialog} from "./lib/preview";
 
 const CenterCol = styled.div` 
 margin: 20px; 
@@ -94,10 +95,13 @@ const App: React.FC = () => {
     const block = new BlockContainerController(controller.rootContainer.id, rootBlock.blocks);
     return (
         <CenterCol>
+            <div className="w-100 lined-2 py-3 flex-right">
             <CharacterEditDialog header="Character list editor"
                                  list={controller.list}
                                  onCharaRenamed={controller.renameCharacter}
             />
+            <PreviewDialog script={controller.rootContainer}/>
+            </div>
             <Container>
                 <ControllerContext.Provider value={controller}>
                     <BlockContainer block={block}/>
