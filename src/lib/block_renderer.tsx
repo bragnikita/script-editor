@@ -1,10 +1,10 @@
 import React, {useCallback} from 'react';
 import SelectorField, {buildComponent} from "./selector";
 import {observer} from "mobx-react";
-import {ScriptBlock} from "./controller";
 import {useContainer, useController} from "./hooks";
 import {IconButton} from "./components";
 import "../myscss.scss";
+import {ScriptBlock} from "./models";
 
 const BlockRenderer = observer((props: {
     model: ScriptBlock,

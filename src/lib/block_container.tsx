@@ -1,9 +1,10 @@
 import React from 'react';
 import {observer} from "mobx-react";
-import {BlockContainerController, ScriptBlock} from "./controller";
+import {BlockContainerController} from "./controller";
 import {BlockContainerContext} from "./hooks";
 import "../myscss.scss";
 import {Block} from "./block_renderer";
+import {ScriptBlock} from "./models";
 
 export const BlockContainer = observer((
     {

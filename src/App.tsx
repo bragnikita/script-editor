@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.css';
 import styled from "styled-components";
-import {BlockContainerController, ContainerData, ScriptContoller} from "./lib/controller";
+import {BlockContainerController, ScriptContoller} from "./lib/controller";
 import {ControllerContext} from "./lib/hooks"
 import {BlockContainer} from "./lib/block_container";
 import 'bulma'
@@ -12,6 +12,7 @@ import '@fortawesome/fontawesome-free/js/brands'
 import {DataDisplayer} from "./lib/components";
 import {SCRIPT} from "./test";
 import {CharacterEditDialog, CharaListPanel} from "./lib/chara_list";
+import {ContainerData} from "./lib/models";
 
 const CenterCol = styled.div` 
 margin: 20px; 

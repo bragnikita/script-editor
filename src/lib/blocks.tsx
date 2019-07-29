@@ -3,9 +3,8 @@ import {
     SimpleTextData,
     ImageData,
     ScriptBlock,
-    BlockContainerController,
     ContainerData
-} from "./controller";
+} from "./models";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import * as React from "react";
@@ -17,6 +16,7 @@ import classnames from 'classnames';
 import {IconButton} from "./components";
 import {Block} from "./block_renderer";
 import Textarea from 'react-textarea-autosize';
+import {BlockContainerController} from "./controller";
 
 type Hotkeys = HotkeyHandle;
 

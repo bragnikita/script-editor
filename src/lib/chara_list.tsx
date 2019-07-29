@@ -5,8 +5,9 @@ import {FieldState} from "formstate";
 import {action, observable} from "mobx";
 import classnames from 'classnames';
 import {useInputHotKeys} from "./hooks";
+import {CharaListItem} from "./models";
 
-type CharaListItem = { name: string }
+
 
 interface CharaListProps {
     list: CharaListItem[];

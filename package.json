@@ -12,6 +12,7 @@
     "@types/react-select": "^2.0.19",
     "@types/react-textarea-autosize": "^4.3.4",
     "@types/styled-components": "^4.1.16",
+    "@fortawesome/fontawesome-free": "^5.9.0",
     "bulma": "^0.7.5",
     "class-transformer": "^0.2.3",
     "classnames": "^2.2.6",
@@ -51,7 +52,6 @@
     ]
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.9.0",
     "mobx-react-devtools": "^6.1.1",
     "node-sass": "^4.12.0"
   }

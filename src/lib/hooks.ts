@@ -1,6 +1,7 @@
 import {createContext, useCallback, useContext, useEffect, useRef} from "react";
-import {BlockContainerController, HotkeyHandle, ScriptContoller} from "./controller";
+import {BlockContainerController, ScriptContoller} from "./controller";
 import React from "react";
+import {HotkeyHandle} from "./models";
 
 export const ControllerContext = createContext<ScriptContoller | undefined>(undefined)
 export const BlockContainerContext = createContext<BlockContainerController | undefined>(undefined)

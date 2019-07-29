@@ -4,7 +4,7 @@ import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import Select from 'react-select';
 import styled from "styled-components";
-import {HotkeyHandle, SerifData} from "./controller";
+import {HotkeyHandle, SerifData} from "./models";
 import {observable, runInAction} from "mobx";
 import {useAutoCatchFocus, useTextHotkeys} from "./hooks";
 
