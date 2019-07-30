@@ -1,7 +1,10 @@
 {
-  "name": "script-editor",
+  "name": "haji-script-editor",
+  "main": "index.js",
   "version": "0.1.0",
   "private": true,
+  "repository": "https://github.com/bragnikita/script-editor",
+  "files": ["src/lib/**/*"],
   "dependencies": {
     "@types/classnames": "^2.2.8",
     "@types/jest": "24.0.15",
@@ -39,7 +42,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "prepare": "npm run build"
   },
   "eslintConfig": {
     "extends": "react-app"
